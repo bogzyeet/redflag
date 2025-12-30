@@ -2971,11 +2971,15 @@ textarea:focus::-webkit-input-placeholder { color: transparent; }
 /* Mobile Responsive - PS5 Style */
 @media only screen and (max-width: 768px) {
     .ps5-content-layer {
-        padding: 60px 0 80px;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
     }
     
     .ps5-slider-viewport {
-        margin-bottom: 30px;
+        margin-bottom: 0;
+        flex: 1;
     }
     
     .ps5-slider-container {
@@ -3025,8 +3029,14 @@ textarea:focus::-webkit-input-placeholder { color: transparent; }
     }
     
     .ps5-title-box {
-        bottom: 30px;
-        left: 30px;
+        /* Move title to TOP for mobile, above the carousel */
+        position: relative;
+        bottom: auto;
+        top: 0;
+        left: 0;
+        padding: 30px 25px 20px 25px;
+        text-align: center;
+        width: 100%;
     }
     
     .ps5-subtitle {
@@ -5238,7 +5248,7 @@ background-color: transparent;
 
 /* About Section Mobile Layout Fix */
 @media only screen and (max-width: 768px) {
-    /* Reorder columns for mobile: Image first, then text, then about_right_1.png */
+    /* Reorder columns for mobile: Image first, then text, NO about_right_1.png */
     .section#section1 .row {
         display: flex;
         flex-direction: column;
@@ -5247,32 +5257,37 @@ background-color: transparent;
     /* About image (first on mobile) */
     .section#section1 .wrap-teardrop {
         order: 1;
-        min-height: 300px;
+        min-height: 350px;
     }
     
-    /* Text content (second on mobile) */
+    /* Text content (second on mobile) - FULL WIDTH, NO PADDING/MARGIN */
     .section#section1 .col-md-push-4 {
         order: 2;
-        padding: 30px 20px !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
     
-    /* about_right_1.png (third on mobile) */
+    /* Make white box full-sized with no gaps */
+    .section#section1 .all-content-wrapper {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+    
+    .section#section1 .all-content {
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: auto !important;
+    }
+    
+    .section#section1 .all-content-inner {
+        padding: 40px 25px !important;
+        margin: 0 !important;
+    }
+    
+    /* Hide about_right_1.png on mobile */
     .section#section1 .new-about-bg {
-        order: 3;
-        min-height: 300px;
-        display: block !important;
-    }
-    
-    /* Ensure about_right_1.png is visible on mobile */
-    .section#section1 .new-about-bg .all-bg {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        min-height: 300px;
-        background-image: url('../img/about/about_right_1.png') !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-repeat: no-repeat !important;
+        display: none !important;
     }
     
     /* Remove push/pull on mobile */
@@ -5281,6 +5296,21 @@ background-color: transparent;
         position: relative;
         left: auto;
         right: auto;
+    }
+    
+    /* Remove section subheading "More than a club" on mobile */
+    .section#section1 .section-subheading {
+        display: none;
+    }
+    
+    /* Remove "About Red Flag Car Club" heading on mobile */
+    .section#section1 .about-main-heading {
+        display: none;
+    }
+    
+    /* Remove extra dividers */
+    .section#section1 .inner-divider-half {
+        display: none;
     }
 }
 
@@ -5295,13 +5325,38 @@ background-color: transparent;
     /* Contact image (first on mobile) */
     .section#section4 .wrap-teardrop {
         order: 1;
-        min-height: 300px;
+        min-height: 350px;
     }
     
-    /* Follow Us section (second on mobile) */
+    /* Follow Us section (second on mobile) - FULL WIDTH, NO PADDING/MARGIN */
     .section#section4 .col-md-push-4 {
         order: 2;
-        padding: 30px 20px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Make white box full-sized with no gaps */
+    .section#section4 .all-content-wrapper-contact {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+    
+    .section#section4 .all-content {
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: auto !important;
+    }
+    
+    .section#section4 .all-content-inner {
+        padding: 40px 25px !important;
+        margin: 0 !important;
+    }
+    
+    /* Instagram embed responsive sizing */
+    .section#section4 .instagram-embed-wrapper {
+        width: 100% !important;
+        padding: 0 !important;
     }
     
     /* Red Flag logo section (third on mobile) */
@@ -5316,5 +5371,15 @@ background-color: transparent;
         position: relative;
         left: auto;
         right: auto;
+    }
+    
+    /* Remove "Join the Club" subheading from Follow Us box on mobile */
+    .section#section4 .section-subheading {
+        display: none !important;
+    }
+    
+    /* Move "Follow Us" heading down - add top padding */
+    .section#section4 .section-heading {
+        padding-top: 50px;
     }
 }
