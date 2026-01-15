@@ -622,8 +622,13 @@
             // Generate media array
             const media = selectedFiles.map(file => {
                 const isVideo = file.type.startsWith('video/');
+                let fileName = file.name;
+                if (!isVideo) {
+                    // Replace extension with .webp
+                    fileName = fileName.replace(/\.[^/.]+$/, ".webp");
+                }
                 return {
-                    src: `img/drives/${folder}/${file.name}`,
+                    src: `img/drives/${folder}/${fileName}`,
                     type: isVideo ? 'video' : 'image'
                 };
             });

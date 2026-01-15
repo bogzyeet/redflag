@@ -1,18 +1,18 @@
 // Red Flag Drives System - PS5 Dashboard Style
-(function() {
+(function () {
     'use strict';
-    
+
     let drivesData = null;
     let currentDrive = null;
     let currentMediaIndex = 0;
-    
+
     // Initialize on page load
-    $(document).ready(function() {
-        setTimeout(function() {
+    $(document).ready(function () {
+        setTimeout(function () {
             loadDrivesData();
         }, 300);
     });
-    
+
     // Load drives from embedded data or JSON
     function loadDrivesData() {
         // Check if DRIVES_DATA is available (from drives-data.js)
@@ -20,7 +20,7 @@
             console.log('✅ Drives loaded from drives-data.js (no CORS issues)');
             console.log('Number of drives:', DRIVES_DATA.drives ? DRIVES_DATA.drives.length : 0);
             if (DRIVES_DATA.drives && DRIVES_DATA.drives.length > 0) {
-                DRIVES_DATA.drives.forEach(function(drive) {
+                DRIVES_DATA.drives.forEach(function (drive) {
                     const count = drive.media ? drive.media.length : (drive.images ? drive.images.length : 0);
                     console.log(`  - ${drive.title}: ${count} items`);
                 });
@@ -29,27 +29,27 @@
             renderPS5Drives();
             return;
         }
-        
+
         // Fallback: Try to load from JSON (may have CORS issues)
         const cacheBuster = '?v=' + new Date().getTime();
-        $.getJSON('drives.json' + cacheBuster, function(data) {
+        $.getJSON('drives.json' + cacheBuster, function (data) {
             console.log('✅ Drives loaded successfully from drives.json');
             console.log('Number of drives:', data.drives ? data.drives.length : 0);
             if (data.drives && data.drives.length > 0) {
-                data.drives.forEach(function(drive) {
+                data.drives.forEach(function (drive) {
                     const count = drive.media ? drive.media.length : (drive.images ? drive.images.length : 0);
                     console.log(`  - ${drive.title}: ${count} items`);
                 });
             }
             drivesData = data;
             renderPS5Drives();
-        }).fail(function(jqXHR, textStatus, errorThrown) {
+        }).fail(function (jqXHR, textStatus, errorThrown) {
             console.error('❌ Failed to load drives.json:', textStatus, errorThrown);
             console.warn('⚠️ Loading sample data instead');
             loadSampleData();
         });
     }
-    
+
     // Load sample drives if JSON fails
     function loadSampleData() {
         console.warn('Using sample data - drives.json not found or failed to load');
@@ -93,21 +93,21 @@
         };
         renderPS5Drives();
     }
-    
+
     // Render PS5-style drives
     function renderPS5Drives() {
         if (!drivesData || !drivesData.drives || drivesData.drives.length === 0) {
             return;
         }
-        
+
         const container = $('#ps5-slider');
         container.empty();
-        
+
         // Render each drive card
-        drivesData.drives.forEach(function(drive) {
+        drivesData.drives.forEach(function (drive) {
             const mediaCount = drive.media ? drive.media.length : (drive.images ? drive.images.length : 0);
             const isVideoCover = drive.coverImage && drive.coverImage.toLowerCase().endsWith('.mp4');
-            
+
             // Build cover media HTML
             let coverHTML = '';
             if (isVideoCover) {
@@ -128,7 +128,7 @@
             } else {
                 coverHTML = `<div class="ps5-card-image" style="background-image:url('${drive.coverImage}')"></div>`;
             }
-            
+
             const card = $(`
                 <div class="ps5-drive-card" data-drive-id="${drive.id}">
                     ${coverHTML}
@@ -152,50 +152,50 @@
                     </div>
                 </div>
             `);
-            
+
             container.append(card);
         });
-        
+
         // Setup scroll navigation
         setupNavigation();
-        
+
         // Attach gallery handlers
         attachGalleryHandlers();
-        
+
         // Ensure cover videos start playing
         startCoverVideos();
     }
-    
+
     // Setup arrow navigation
     function setupNavigation() {
         const slider = document.getElementById('ps5-slider');
         const prevBtn = document.getElementById('ps5-prev');
         const nextBtn = document.getElementById('ps5-next');
-        
+
         if (!slider) return;
-        
+
         const cardWidth = 450;
         const gap = 40;
         const scrollAmount = cardWidth + gap;
-        
-        prevBtn.addEventListener('click', function(e) {
+
+        prevBtn.addEventListener('click', function (e) {
             e.preventDefault();
             slider.scrollBy({
                 left: -scrollAmount,
                 behavior: 'smooth'
             });
         });
-        
-        nextBtn.addEventListener('click', function(e) {
+
+        nextBtn.addEventListener('click', function (e) {
             e.preventDefault();
             slider.scrollBy({
                 left: scrollAmount,
                 behavior: 'smooth'
             });
         });
-        
+
         // Keyboard navigation
-        $(document).on('keydown', function(e) {
+        $(document).on('keydown', function (e) {
             if ($('#drive-modal').attr('aria-hidden') !== 'false') {
                 if (e.key === 'ArrowLeft') {
                     slider.scrollBy({
@@ -211,68 +211,68 @@
             }
         });
     }
-    
+
     // Attach gallery handlers
     function attachGalleryHandlers() {
-        $('.ps5-drive-card, .open-gallery').off('click').on('click', function(e) {
+        $('.ps5-drive-card, .open-gallery').off('click').on('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const driveId = $(this).data('drive-id') || $(this).closest('.ps5-drive-card').data('drive-id');
             const drive = drivesData.drives.find(d => d.id === driveId);
-            
+
             if (drive) {
                 openGalleryModal(drive);
             }
         });
     }
-    
+
     // Start playing cover videos - aggressive approach
     function startCoverVideos() {
         const videos = $('.ps5-card-video');
-        
+
         // Function to force play all videos
         function forcePlayAllVideos() {
-            videos.each(function() {
+            videos.each(function () {
                 const video = this;
                 if (video.paused) {
-                    video.play().catch(function(error) {
+                    video.play().catch(function (error) {
                         console.log('Video play failed:', error);
                     });
                 }
             });
         }
-        
+
         // Try 1: Immediate play attempt
         setTimeout(forcePlayAllVideos, 100);
-        
+
         // Try 2: After a delay
         setTimeout(forcePlayAllVideos, 500);
-        
+
         // Try 3: After another delay
         setTimeout(forcePlayAllVideos, 1000);
-        
+
         // Try 4: On any user interaction (click, scroll, touch, key press)
         const userInteractionEvents = ['click', 'touchstart', 'scroll', 'keydown', 'mousemove'];
         let interactionHandled = false;
-        
-        userInteractionEvents.forEach(function(eventType) {
-            $(document).one(eventType, function() {
+
+        userInteractionEvents.forEach(function (eventType) {
+            $(document).one(eventType, function () {
                 if (!interactionHandled) {
                     interactionHandled = true;
                     forcePlayAllVideos();
                 }
             });
         });
-        
+
         // Try 5: Intersection Observer for viewport detection
         if ('IntersectionObserver' in window) {
-            const videoObserver = new IntersectionObserver(function(entries) {
-                entries.forEach(function(entry) {
+            const videoObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
                     if (entry.isIntersecting) {
                         const video = entry.target;
                         if (video.paused) {
-                            video.play().catch(function(error) {
+                            video.play().catch(function (error) {
                                 console.log('Video play on scroll failed:', error);
                             });
                         }
@@ -281,39 +281,39 @@
             }, {
                 threshold: 0.25
             });
-            
-            videos.each(function() {
+
+            videos.each(function () {
                 videoObserver.observe(this);
             });
         }
-        
+
         // Try 6: Individual hover fallback
-        videos.each(function() {
+        videos.each(function () {
             const video = this;
-            $(video).closest('.ps5-drive-card').on('mouseenter touchstart', function() {
+            $(video).closest('.ps5-drive-card').on('mouseenter touchstart', function () {
                 if (video.paused) {
-                    video.play().catch(function(error) {
+                    video.play().catch(function (error) {
                         console.log('Video play on hover failed:', error);
                     });
                 }
             });
         });
-        
+
         // Try 7: Monitor and auto-restart if paused
-        setInterval(function() {
-            videos.each(function() {
+        setInterval(function () {
+            videos.each(function () {
                 if (this.paused && $(this).is(':visible')) {
-                    this.play().catch(function() {});
+                    this.play().catch(function () { });
                 }
             });
         }, 2000);
     }
-    
+
     // Open gallery modal
     function openGalleryModal(drive) {
         currentDrive = drive;
         currentMediaIndex = 0;
-        
+
         // Support both 'media' and 'images' field names (backward compatibility)
         if (!drive.media && drive.images) {
             console.log('Converting old images format to media format');
@@ -322,95 +322,82 @@
                 type: img.type || 'image'
             }));
         }
-        
+
         console.log('Opening gallery for:', drive.title);
         console.log('Total media items:', drive.media ? drive.media.length : 0);
-        
+
         if (!drive.media || drive.media.length === 0) {
             console.error('No media found for this drive!');
             alert('No media found for this drive');
             return;
         }
-        
-        // Disable fullpage scrolling and mouse wheel
-        if (typeof $.fn.fullpage !== 'undefined') {
-            if ($.fn.fullpage.setAllowScrolling) {
-                $.fn.fullpage.setAllowScrolling(false);
-            }
-            if ($.fn.fullpage.setKeyboardScrolling) {
-                $.fn.fullpage.setKeyboardScrolling(false);
-            }
-            if ($.fn.fullpage.setMouseWheelScrolling) {
-                $.fn.fullpage.setMouseWheelScrolling(false);
-            }
-        }
-        
+
+        // Disable fullpage scrolling - Handled by normalScrollElements in rexbel.js
+        // and CSS overflow: hidden on body via modal-open class
+
         // Render thumbnails
         const thumbsContainer = $('#drive-modal-thumbs');
         thumbsContainer.empty();
-        
-        drive.media.forEach(function(item, index) {
+
+        drive.media.forEach(function (item, index) {
             // For videos, show first frame or a placeholder
             const thumbSrc = item.type === 'video' ? item.src.replace('.mp4', '.jpg') : item.src;
             const thumb = $(`<div class="drive-thumb-modal ${index === 0 ? 'active' : ''}" data-index="${index}">
                 <img src="${item.src}" onerror="this.src='${item.src}'">
                 ${item.type === 'video' ? '<div class="video-indicator">▶</div>' : ''}
             </div>`);
-            thumb.on('click', function() {
+            thumb.on('click', function () {
                 currentMediaIndex = index;
                 updateModalMedia();
             });
             thumbsContainer.append(thumb);
         });
-        
+
         // Show first media
         updateModalMedia();
-        
+
+        // Show modal
         // Show modal
         $('#drive-modal').attr('aria-hidden', 'false').fadeIn(300);
-        $('body').addClass('modal-open');
-        
-        // If first media is a video, ensure it starts playing
-        if (drive.media[0] && drive.media[0].type === 'video') {
-            setTimeout(function() {
-                const videoElement = $('#drive-modal-video').get(0);
-                if (videoElement) {
-                    videoElement.play().catch(function(error) {
-                        console.log('Video autoplay prevented on open:', error);
-                    });
-                }
-            }, 400);
-        }
-        
-        // Prevent body scroll
-        $(document).on('touchmove.modal mousewheel.modal DOMMouseScroll.modal', function(e) {
-            if (!$(e.target).closest('.drive-modal-dialog').length) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
+        // Do NOT add modal-open class to body to avoid layout shifts (CSS overflow hidden triggers jump)
+        // $('body').addClass('modal-open'); 
+
+        // Prevent body scroll via Event Listeners (stops scroll without changing layout)
+        const preventDefault = (e) => {
+            // Allow scroll inside the modal content
+            if ($(e.target).closest('.drive-modal-body').length || $(e.target).closest('.drive-modal-thumbs').length) {
+                return;
             }
-        });
+            e.preventDefault();
+        };
+
+        // Store the handler on the modal element to remove it later (using jQuery data or variable)
+        $('#drive-modal').data('preventScroll', preventDefault);
+
+        // Add listeners with non-passive option to allow preventDefault
+        document.addEventListener('touchmove', preventDefault, { passive: false });
+        document.addEventListener('wheel', preventDefault, { passive: false });
     }
-    
+
     // Update modal media with smooth fade transition
     function updateModalMedia() {
         if (!currentDrive || !currentDrive.media || !currentDrive.media[currentMediaIndex]) return;
-        
+
         const media = currentDrive.media[currentMediaIndex];
         const $img = $('#drive-modal-image');
         const $video = $('#drive-modal-video');
         const videoElement = $video.get(0);
-        
+
         // Fade out current media
         $img.fadeOut(300);
         $video.fadeOut(300);
-        
+
         if (videoElement) {
             videoElement.pause();
         }
-        
+
         // Wait for fade out, then switch media
-        setTimeout(function() {
+        setTimeout(function () {
             // Show appropriate media with fade in
             if (media.type === 'video') {
                 $video.attr('src', media.src);
@@ -418,8 +405,8 @@
                 if (videoElement) {
                     videoElement.load();
                     // Show video and auto-play
-                    $video.fadeIn(300, function() {
-                        videoElement.play().catch(function(error) {
+                    $video.fadeIn(300, function () {
+                        videoElement.play().catch(function (error) {
                             console.log('Video autoplay prevented:', error);
                         });
                     });
@@ -428,65 +415,67 @@
                 $img.attr('src', media.src).fadeIn(300);
             }
         }, 300);
-        
+
         // Update thumbnails
         $('.drive-thumb-modal').removeClass('active');
         $(`.drive-thumb-modal[data-index="${currentMediaIndex}"]`).addClass('active');
     }
-    
+
     // Close modal
     function closeGalleryModal() {
-        $('#drive-modal').fadeOut(300, function() {
+        $('#drive-modal').fadeOut(300, function () {
             $(this).attr('aria-hidden', 'true');
         });
-        
+
         // Pause any playing video
         const $video = $('#drive-modal-video');
         if ($video.length) {
             $video.get(0).pause();
         }
-        
+
+        // Retrieve scroll position
+        // const scrollY = parseInt($('body').css('top') || '0') * -1; // No longer needed
+
+        // Retrieve scroll position
+        // const scrollY = parseInt($('body').css('top') || '0') * -1; // No longer needed
+
         $('body').removeClass('modal-open');
-        
+
+        // Remove Event Listeners
+        const preventDefault = $('#drive-modal').data('preventScroll');
+        if (preventDefault) {
+            document.removeEventListener('touchmove', preventDefault);
+            document.removeEventListener('wheel', preventDefault);
+            $('#drive-modal').removeData('preventScroll');
+        }
+
         // Remove event handlers
         $(document).off('touchmove.modal mousewheel.modal DOMMouseScroll.modal');
-        
-        // Re-enable fullpage scrolling and mouse wheel
-        setTimeout(function() {
-            if (typeof $.fn.fullpage !== 'undefined') {
-                if ($.fn.fullpage.setAllowScrolling) {
-                    $.fn.fullpage.setAllowScrolling(true);
-                }
-                if ($.fn.fullpage.setKeyboardScrolling) {
-                    $.fn.fullpage.setKeyboardScrolling(true);
-                }
-                if ($.fn.fullpage.setMouseWheelScrolling) {
-                    $.fn.fullpage.setMouseWheelScrolling(true);
-                }
-            }
-        }, 350);
-        
+
+        // Re-enable fullpage scrolling - Handled automatically when modal is hidden
+        // No explicit rebuild needed as we rely on normalScrollElements
+
         currentDrive = null;
         currentMediaIndex = 0;
     }
-    
+
     // Modal navigation
     $('.drive-modal-close').on('click', closeGalleryModal);
-    
-    $('.drive-nav-prev').on('click', function() {
+
+    $('.drive-nav-prev').on('click', function () {
         if (!currentDrive || !currentDrive.media) return;
         currentMediaIndex = (currentMediaIndex - 1 + currentDrive.media.length) % currentDrive.media.length;
         updateModalMedia();
     });
-    
-    $('.drive-nav-next').on('click', function() {
+
+    $('.drive-nav-next').on('click', function () {
         if (!currentDrive || !currentDrive.media) return;
         currentMediaIndex = (currentMediaIndex + 1) % currentDrive.media.length;
         updateModalMedia();
     });
-    
+
     // Keyboard navigation for modal
-    $(document).on('keydown', function(e) {
+    $(document).on('keydown', function (e) {
         if ($('#drive-modal').attr('aria-hidden') === 'false') {
             if (e.key === 'Escape') {
                 closeGalleryModal();
@@ -497,5 +486,5 @@
             }
         }
     });
-    
+
 })();
